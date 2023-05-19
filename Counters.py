@@ -68,23 +68,38 @@ class TimeKeeper(Counter):
         print("Timekeeper: constructor")
         super().__init__()
         self._starttime = 0
+        self._running = False
 
     def start(self):
         """ Start the timer. Note that if previously stopped, this will add to previous time """
         
         print("Timekeeper: start")
+        """ If timer was already running, the start will get reset to the new time """
+
         self._starttime = time.ticks_ms()
+        self._running = True
 
     def stop(self):
         """ Stop the timer. Count will save the # of ms elapsed """
         
         print("Timekeeper: stop")
-        self._count = self._count + time.ticks_diff(time.ticks_ms(),self._starttime)
+        """ If it was already stopped, nothing to be done """
+        if self._running:
+            self._running = False
+            self._count = self._count + time.ticks_diff(time.ticks_ms(),self._starttime)
+
+    def reset(self):
+        """ 
+        Resetting the timer will set count to 0 and starttime to the current time 
+        But timer keeps running if not stopped
+        """
+        super().reset()
+        self._starttime = time.ticks_ms()
 
     def __str__(self) -> str:
         """ Get a string representation of time in HH:MM:SS.ms format """
         
-        curtime = self._count + time.ticks_diff(time.ticks_ms(),self._starttime)
+        curtime = self._count + (time.ticks_diff(time.ticks_ms(),self._starttime) if self._running else 0)
         ms = curtime % 1000
         sec = (curtime // 1000) % 60
         min = (curtime // 60000) % 60
@@ -114,11 +129,11 @@ class HardwareTimer(Counter):
         """ Start the timer with the number of seconds to use. """
         
         self._count = seconds
-        self._timer.init(period = seconds*1000, mode=Timer.PERIODIC, callback = self._handler.timeout())
+        self._timer.init(period = int(seconds*1000), mode=Timer.ONE_SHOT, callback = self.timeout)
         self._started = True
 
     def cancel(self):
-        """ Cancel the timer. Note that a normal stop will cause tha handler callback. """
+        """ Cancel the timer. Note that a normal stop will cause the handler callback. """
         
         if self._started:
             self._timer.deinit()
@@ -130,6 +145,10 @@ class HardwareTimer(Counter):
         
         super().reset()
         self.cancel()
+        
+    def timeout(self, timer):
+        self.cancel()
+        self._handler.timeout()
 
 class SoftwareTimer(Counter):
     """
