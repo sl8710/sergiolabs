@@ -1,21 +1,7 @@
-"""
-# Button.py - Object-Oriented implementation of a Button
-# Author: Arijit Sengupta
-"""
-
 from machine import Pin
 import time
-
 class Button:
-    """
-    A simple Button class
-    Create the button using Button(pinnumber, name, handler)
-    handler is typically self, and create two methods buttonPressed and buttonReleased
-    to handle the push and release of the button.
-    The name of the button will be passed back to the handler to identify
-    which button was pressed/released
-    """
-    
+        
     def __init__(self, pin, name, *, buttonhandler=None, lowActive=True):
         self._pinNo = pin
         self._name = name
@@ -27,7 +13,6 @@ class Button:
         self._lowActive = lowActive
         self._buttonhandler = buttonhandler
         self._pin.irq(trigger = Pin.IRQ_FALLING | Pin.IRQ_RISING, handler = self._callback)
-
     def isPressed(self):
         """ Check if the button is pressed or not - useful if polling """
         
