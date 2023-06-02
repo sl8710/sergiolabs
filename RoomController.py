@@ -4,8 +4,8 @@ import random
 from Model import *
 from Button import *
 from Counters import *
-from myclasses import *
 from Lights import *
+from Sensors import *
 
 class RoomController:
     def __init__(self):
@@ -13,10 +13,10 @@ class RoomController:
         # Instantiate whatever classes from your own model that you need to control
         # Handlers can now be set to None - we will add them to the model and it will
         # do the handling
-        self._button1 = Button(0, "lightswitch", buttonhandler=None)
-        self._button2 = Button(22, "partyswitch", buttonhandler=None)
-        self._pir = MotionSensor(28)
-        self._partylight = PartyLight(16)
+        self._button1 = Button(1, "lightswitch", buttonhandler=None)
+        self._button2 = Button(21, "partyswitch", buttonhandler=None)
+        self._pir = Sensors(28)
+        self._light = Light(17)
         self._roomlight = Light(2) 
         
         
@@ -55,7 +55,7 @@ class RoomController:
         self._model.addTransition(0, BTN2_PRESS, 2)
        
     
-       def run(self):
+    def run(self):
         # The run method should simply do any initializations (if needed)
         # and then call the model's run method.
         # You can send a delay as a parameter if you want something other
@@ -75,13 +75,13 @@ class RoomController:
             self._partylight.disco()
         
        
-      def stateEntered(self, state):
+    def stateEntered(self, state):
         # Again if statements to do whatever entry/actions you need
         if state == 0:
             # entry actions for state 0
             print('State 0 entered')
             self._roomlight.off()
-            self._partylight.off()
+            self._light.off()
     
         
         elif state == 1:
@@ -92,11 +92,11 @@ class RoomController:
         elif state == 2:
             # entry actions for state 2
             print('State 2 entered')
-            self._partylight.off()
+            self._light.off()
            
         
             
-     def stateLeft(self, state):
+    def stateLeft(self, state):
         print(f"Leaving state {state}")
         if state == 2:
             self._partylight.off()
